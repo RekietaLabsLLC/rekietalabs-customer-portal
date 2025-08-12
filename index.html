@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RekietaLabs Support - Create Ticket1</title>
+  <title>RekietaLabs Support - Create Ticket2</title>
   <style>
     /* Dark theme basics */
     body {
@@ -139,7 +139,7 @@
       }
 
       try {
-        const response = await fetch('https://api.rekietalabs.com/functions/tickets/create', {
+        const response = await fetch('https://api.rekietalabs.com/tickets/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
