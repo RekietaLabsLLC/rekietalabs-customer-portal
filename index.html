@@ -5,140 +5,109 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>RekietaLabs Support - Create Ticket</title>
 <style>
-  /* Dark theme */
-  body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0; padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding: 2rem;
+  :root {
+    --brand-color: #1753aa;
+    --bg-color: #121212;
+    --text-color: #eee;
+    --input-bg: #1e1e1e;
+    --input-border: #333;
+    --button-bg: var(--brand-color);
+    --button-hover-bg: #0f3d7d;
+    --error-color: #f44336;
   }
-  main {
-    background-color: #1e1e1e;
-    border-radius: 8px;
-    padding: 2rem 3rem;
-    width: 100%;
-    max-width: 480px;
+  body {
+    margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-color); color: var(--text-color);
+    display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+    padding: 20px;
+  }
+  header {
+    font-size: 2rem; margin-bottom: 20px; font-weight: bold; color: var(--brand-color);
+  }
+  form {
+    background: #222; padding: 20px; border-radius: 8px; width: 100%; max-width: 480px;
     box-shadow: 0 0 15px rgba(23, 83, 170, 0.5);
   }
-  h1 {
-    color: #1753aa;
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
   label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: 600;
-    color: #a0a0a0;
+    display: block; margin-bottom: 6px; font-weight: 600;
   }
-  input[type="text"],
-  input[type="email"],
-  textarea,
-  select {
-    width: 100%;
-    padding: 0.6rem 0.8rem;
-    margin-top: 0.25rem;
-    border: 1px solid #333;
-    border-radius: 4px;
-    background-color: #121212;
-    color: #eee;
-    font-size: 1rem;
+  input, textarea, select {
+    width: 100%; padding: 10px; margin-bottom: 15px;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 4px; color: var(--text-color); font-size: 1rem;
     resize: vertical;
   }
-  textarea {
-    min-height: 100px;
-  }
-  select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image:
-      linear-gradient(45deg, transparent 50%, #1753aa 50%),
-      linear-gradient(135deg, #1753aa 50%, transparent 50%);
-    background-position:
-      calc(100% - 20px) calc(1rem),
-      calc(100% - 15px) calc(1rem);
-    background-size: 5px 5px;
-    background-repeat: no-repeat;
-  }
   button {
-    margin-top: 2rem;
-    width: 100%;
-    background-color: #1753aa;
-    border: none;
-    padding: 0.75rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    width: 100%; background: var(--button-bg); border: none;
+    padding: 12px; font-size: 1.1rem; color: #fff; border-radius: 4px;
+    cursor: pointer; transition: background 0.3s ease;
   }
   button:hover {
-    background-color: #0f3f7a;
+    background: var(--button-hover-bg);
   }
-  .message {
-    margin-top: 1rem;
-    padding: 1rem;
-    border-radius: 5px;
-    font-weight: 600;
+  .error {
+    color: var(--error-color); margin-bottom: 10px; font-weight: 700;
   }
-  .message.success {
-    background-color: #175a26;
-    color: #b7f5a4;
+  .success {
+    color: #4caf50; margin-bottom: 10px; font-weight: 700;
   }
-  .message.error {
-    background-color: #7a1717;
-    color: #f5a4a4;
+  footer {
+    margin-top: auto; font-size: 0.8rem; color: #555;
+  }
+  a {
+    color: var(--brand-color);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
   }
 </style>
 </head>
 <body>
-<main>
-  <h1>Create a Support Ticket</h1>
-  <form id="ticketForm" novalidate>
-    <label for="creator_name">Your Name (optional)</label>
-    <input type="text" id="creator_name" name="creator_name" placeholder="John Doe" />
+<header>RekietaLabs Support</header>
 
-    <label for="creator_email" required>Your Email *</label>
-    <input type="email" id="creator_email" name="creator_email" placeholder="you@example.com" required />
+<form id="ticketForm" novalidate>
+  <div id="formMessage"></div>
 
-    <label for="subject" required>Subject *</label>
-    <input type="text" id="subject" name="subject" placeholder="Brief issue summary" required />
+  <label for="creator_name">Your Name (optional)</label>
+  <input type="text" id="creator_name" name="creator_name" placeholder="Your name" />
 
-    <label for="description" required>Description *</label>
-    <textarea id="description" name="description" placeholder="Describe your issue in detail" required></textarea>
+  <label for="creator_email" required>Your Email</label>
+  <input type="email" id="creator_email" name="creator_email" placeholder="you@example.com" required />
 
-    <label for="priority">Priority</label>
-    <select id="priority" name="priority">
-      <option value="normal" selected>Normal</option>
-      <option value="low">Low</option>
-      <option value="high">High</option>
-      <option value="urgent">Urgent</option>
-    </select>
+  <label for="subject" required>Subject</label>
+  <input type="text" id="subject" name="subject" placeholder="Ticket subject" required />
 
-    <button type="submit">Submit Ticket</button>
-  </form>
+  <label for="description" required>Description</label>
+  <textarea id="description" name="description" rows="6" placeholder="Explain your issue or request..." required></textarea>
 
-  <div id="responseMessage" class="message" style="display:none;"></div>
-</main>
+  <label for="priority">Priority</label>
+  <select id="priority" name="priority">
+    <option value="normal" selected>Normal</option>
+    <option value="low">Low</option>
+    <option value="high">High</option>
+    <option value="urgent">Urgent</option>
+  </select>
+
+  <button type="submit">Create Ticket</button>
+</form>
+
+<footer>
+  <p>After submitting, you will receive an email with your ticket login link and credentials.</p>
+</footer>
 
 <script>
+  const apiBase = 'https://api.rekietalabs.com/functions/tickets';
+
   const form = document.getElementById('ticketForm');
-  const responseMessage = document.getElementById('responseMessage');
+  const formMessage = document.getElementById('formMessage');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    formMessage.textContent = '';
+    formMessage.className = '';
 
-    responseMessage.style.display = 'none';
-    responseMessage.className = 'message';
-
-    const formData = {
+    const data = {
       creator_name: form.creator_name.value.trim(),
       creator_email: form.creator_email.value.trim(),
       subject: form.subject.value.trim(),
@@ -146,39 +115,35 @@
       priority: form.priority.value,
     };
 
-    // Basic client validation
-    if (!formData.creator_email || !formData.subject || !formData.description) {
-      responseMessage.textContent = 'Please fill in all required fields marked with *.';
-      responseMessage.classList.add('error');
-      responseMessage.style.display = 'block';
+    // Basic validation
+    if (!data.creator_email || !data.subject || !data.description) {
+      formMessage.textContent = 'Please fill in all required fields.';
+      formMessage.className = 'error';
       return;
     }
 
     try {
-      const res = await fetch('https://api.rekietalabs.com/functions/tickets/', {
+      const response = await fetch(`${apiBase}/create`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
-      const data = await res.json();
+      const result = await response.json();
 
-      if (res.ok) {
-        responseMessage.textContent = `Ticket created successfully! Your ticket ID: ${data.ticketId}. Check your email for the login link.`;
-        responseMessage.classList.add('success');
-        responseMessage.style.display = 'block';
-        form.reset();
-      } else {
-        responseMessage.textContent = data.error || 'Failed to create ticket. Please try again.';
-        responseMessage.classList.add('error');
-        responseMessage.style.display = 'block';
+      if (!response.ok) {
+        formMessage.textContent = result.error || 'Failed to create ticket.';
+        formMessage.className = 'error';
+        return;
       }
-    } catch (error) {
-      responseMessage.textContent = 'Network error. Please try again later.';
-      responseMessage.classList.add('error');
-      responseMessage.style.display = 'block';
+
+      formMessage.textContent = `Ticket created successfully! Your Ticket ID: ${result.ticketId}. Please check your email for login details.`;
+      formMessage.className = 'success';
+
+      form.reset();
+    } catch (err) {
+      formMessage.textContent = 'Network error: unable to contact support API.';
+      formMessage.className = 'error';
     }
   });
 </script>
