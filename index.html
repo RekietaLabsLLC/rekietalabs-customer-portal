@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RekietaLabs Support Portal</title>
+<style>
+  /* Dark theme base */
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 15px;
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+  h2 {
+    color: #1753aa;
+  }
+  input, textarea, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    border: 1px solid #333;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    font-size: 1rem;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #888;
+  }
+  textarea {
+    resize: vertical;
+  }
+  button {
+    background-color: #1753aa;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+  }
+  button:hover {
+    background-color: #0f3d7a;
+  }
+  .message {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    word-wrap: break-word;
+  }
+  .user-msg {
+    background-color: #1f375a;
+    border: 1px solid #1753aa;
+  }
+  .staff-msg {
+    background-color: #444444;
+    border: 1px solid #555555;
+  }
+  .error {
+    color: #ff6666;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  nav {
+    margin-bottom: 25px;
+    text-align: center;
+  }
+  nav a {
+    margin: 0 15px;
+    color: #1753aa;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  nav a:hover {
+    text-decoration: underline;
+  }
+  #messages {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid #333;
+    padding: 15px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+  }
+  #logoutBtn {
+    background-color: #cc0000;
+    margin-top: 20px;
+  }
+  #logoutBtn:hover {
+    background-color: #990000;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#/">Create Ticket</a>
+  <a href="#/login">Login to Ticket</a>
+</nav>
+
+<div id="error" class="error"></div>
+
+<div id="createView" style="display:none;">
+  <h2>Create Support Ticket</h2>
+  <form id="createForm">
+    <input type="email" id="createEmail" placeholder="Your Email" required autocomplete="email" />
+    <input type="text" id="createName" placeholder="Your Name (optional)" autocomplete="name" />
+    <input type="text" id="createSubject" placeholder="Subject" required autocomplete="off" />
+    <textarea id="createDescription" placeholder="Describe your issue" rows="5" required></textarea>
+    <select id="createPriority" aria-label="Priority">
+      <option value="low">Low Priority</option>
+      <option value="normal" selected>Normal Priority</option>
+      <option value="high">High Priority</option>
+    </select>
+    <button type="submit">Create Ticket</button>
+  </form>
+</div>
+
+<div id="loginView" style="display:none;">
+  <h2>Login to Your Ticket</h2>
+  <form id="loginForm">
+    <input type="text" id="loginTicketId" placeholder="Ticket ID" required autocomplete="off" />
+    <input type="text" id="loginUsername" placeholder="Username" required autocomplete="off" />
+    <input type="password" id="loginPassword" placeholder="Password" required autocomplete="off" />
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<div id="ticketView" style="display:none;">
+  <h2 id="ticketSubject"></h2>
+  <p>Status: <span id="ticketStatus"></span></p>
+  <p>Priority: <span id="ticketPriority"></span></p>
+  <p>Assigned to: <span id="ticketAssigned"></span></p>
+
+  <h3>Messages</h3>
+  <div id="messages"></div>
+
+  <form id="replyForm">
+    <textarea id="replyMessage" placeholder="Type your reply here" rows="3"></textarea>
+    <button type="submit">Send Reply</button>
+  </form>
+
+  <button id="logoutBtn">Logout</button>
+</div>
+
+<script>
+  const API_BASE = 'https://api.rekietalabs.com/tickets';
+
+  const errorEl = document.getElementById('error');
+  const createView = document.getElementById('createView');
+  const loginView = document.getElementById('loginView');
+  const ticketView = document.getElementById('ticketView');
+
+  const createForm = document.getElementById('createForm');
+  const createEmail = document.getElementById('createEmail');
+  const createName = document.getElementById('createName');
+  const createSubject = document.getElementById('createSubject');
+  const createDescription = document.getElementById('createDescription');
+  const createPriority = document.getElementById('createPriority');
+
+  const loginForm = document.getElementById('loginForm');
+  const loginTicketId = document.getElementById('loginTicketId');
+  const loginUsername = document.getElementById('loginUsername');
+  const loginPassword = document.getElementById('loginPassword');
+
+  const ticketSubject = document.getElementById('ticketSubject');
+  const ticketStatus = document.getElementById('ticketStatus');
+  const ticketPriority = document.getElementById('ticketPriority');
+  const ticketAssigned = document.getElementById('ticketAssigned');
+  const messagesDiv = document.getElementById('messages');
+  const replyForm = document.getElementById('replyForm');
+  const replyMessage = document.getElementById('replyMessage');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  let currentTicket = null;
+  let credentials = null;
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+  }
+  function clearError() {
+    errorEl.textContent = '';
+  }
+  function showView(view) {
+    createView.style.display = 'none';
+    loginView.style.display = 'none';
+    ticketView.style.display = 'none';
+    clearError();
+    if (view === 'create') createView.style.display = 'block';
+    if (view === 'login') loginView.style.display = 'block';
+    if (view === 'ticket') ticketView.style.display = 'block';
+  }
+  function renderMessages(messages) {
+    messagesDiv.innerHTML = '';
+    messages.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'message ' + (msg.from === 'user' ? 'user-msg' : 'staff-msg');
+      div.innerHTML = `<strong>${msg.from}</strong> (${new Date(msg.timestamp).toLocaleString()}):<br>${msg.message}`;
+      messagesDiv.appendChild(div);
+    });
+  }
+  async function loadTicket(id, username, password) {
+    clearError();
+    try {
+      const res = await fetch(`${API_BASE}/${id}`, {
+        headers: { username, password },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to load ticket');
+      currentTicket = data.ticket;
+      credentials = { username, password };
+      ticketSubject.textContent = currentTicket.subject;
+      ticketStatus.textContent = currentTicket.status;
+      ticketPriority.textContent = currentTicket.priority;
+      ticketAssigned.textContent = currentTicket.assigned_to || 'Unassigned';
+      renderMessages(currentTicket.messages);
+      showView('ticket');
+    } catch (e) {
+      showError(e.message);
+      showView('login');
+    }
+  }
+  createForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+    try {
+      const body = {
+        creator_email: createEmail.value.trim(),
+        creator_name: createName.value.trim(),
+        subject: createSubject.value.trim(),
+        description: createDescription.value.trim(),
+        priority: createPriority.value,
+      };
+      const res = await fetch(`${API_BASE}/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create ticket');
+      alert('Ticket created! Check your email for login credentials.');
+      window.location.hash = '#/login';
+    } catch (e) {
+      showError(e.message);
+    }
+  });
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+    await loadTicket(loginTicketId.value.trim(), loginUsername.value.trim(), loginPassword.value.trim());
+  });
+  replyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+    if (!replyMessage.value.trim()) return;
+    try {
+      const res = await fetch(`${API_BASE}/${currentTicket.id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password,
+          from: 'user',
+          message: replyMessage.value.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send reply');
+      replyMessage.value = '';
+      await loadTicket(currentTicket.id, credentials.username, credentials.password);
+    } catch (e) {
+      showError(e.message);
+    }
+  });
+  logoutBtn.addEventListener('click', () => {
+    currentTicket = null;
+    credentials = null;
+    loginTicketId.value = '';
+    loginUsername.value = '';
+    loginPassword.value = '';
+    replyMessage.value = '';
+    window.location.hash = '#/login';
+  });
+  function router() {
+    const hash = window.location.hash || '#/';
+    clearError();
+    if (hash.startsWith('#/login')) {
+      showView('login');
+    } else if (hash.startsWith('#/ticket')) {
+      const params = new URLSearchParams(hash.split('?')[1]);
+      const id = params.get('id');
+      const u = params.get('username');
+      const p = params.get('password');
+      if (id && u && p) {
+        loadTicket(id, u, p);
+      } else {
+        showError('Missing ticket ID or credentials in URL');
+        showView('login');
+      }
+    } else {
+      showView('create');
+    }
+  }
+  window.addEventListener('hashchange', router);
+  window.addEventListener('load', router);
+</script>
+
+</body>
+</html>
