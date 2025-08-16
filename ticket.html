@@ -1,279 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RekietaLabs Support - View Ticket</title>
-<style>
-  :root {
-    --brand-color: #1753aa;
-    --bg-color: #121212;
-    --text-color: #eee;
-    --input-bg: #1e1e1e;
-    --input-border: #333;
-    --button-bg: var(--brand-color);
-    --button-hover-bg: #0f3d7d;
-    --error-color: #f44336;
-    --success-color: #4caf50;
-  }
-  body {
-    margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: var(--bg-color); color: var(--text-color);
-    padding: 20px; max-width: 720px; margin-left: auto; margin-right: auto;
-  }
-  header {
-    font-size: 2rem; margin-bottom: 20px; font-weight: bold; color: var(--brand-color);
-    text-align: center;
-  }
-  section {
-    background: #222; padding: 15px 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(23, 83, 170, 0.5);
-  }
-  h2 {
-    margin-top: 0;
-  }
-  .ticket-info {
-    margin-bottom: 20px;
-  }
-  .ticket-messages {
-    max-height: 350px; overflow-y: auto; border: 1px solid var(--input-border); padding: 10px; border-radius: 4px;
-    background: var(--input-bg);
-    margin-bottom: 20px;
-  }
-  .message {
-    margin-bottom: 12px;
-    padding: 8px 12px;
-    border-radius: 6px;
-  }
-  .message.user {
-    background: #2a2a2a;
-    border-left: 4px solid var(--brand-color);
-  }
-  .message.staff {
-    background: #1b3c7e;
-    border-left: 4px solid #4caf50;
-  }
-  .message.admin {
-    background: #1753aa;
-    border-left: 4px solid #8bc34a;
-  }
-  .message small {
-    display: block;
-    font-size: 0.75rem;
-    color: #bbb;
-    margin-top: 4px;
-  }
-  form {
-    display: flex; flex-direction: column;
-  }
-  textarea {
-    resize: vertical; min-height: 80px; max-height: 150px;
-    background: var(--input-bg); border: 1px solid var(--input-border);
-    border-radius: 4px; padding: 10px; color: var(--text-color);
-    font-size: 1rem; margin-bottom: 12px;
-  }
-  button {
-    align-self: flex-end;
-    background: var(--button-bg); border: none; color: #fff;
-    padding: 10px 18px; font-size: 1rem; border-radius: 4px;
-    cursor: pointer; transition: background 0.3s ease;
-  }
-  button:hover {
-    background: var(--button-hover-bg);
-  }
-  #loginForm {
-    max-width: 360px;
-    margin: 30px auto;
-    background: #222;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(23, 83, 170, 0.5);
-  }
-  #loginForm label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  #loginForm input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 4px;
-    color: var(--text-color);
-    font-size: 1rem;
-  }
-  #loginForm input[readonly] {
-    background: #333;
-    color: #bbb;
-    cursor: not-allowed;
-  }
-  #loginForm button {
-    width: 100%;
-  }
-  #errorMessage {
-    color: var(--error-color);
-    margin-bottom: 10px;
-    font-weight: 700;
-  }
-  #ticketSection {
-    display: none;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    h1, h2 {
+      color: #1753aa;
+    }
+    .ticket-info {
+      margin-bottom: 20px;
+    }
+    .messages {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      padding: 10px 0;
+    }
+    .message {
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      transition: background-color 0.5s;
+    }
+    .message.user {
+      background-color: #2a2a2a;
+      text-align: left;
+    }
+    .message.staff {
+      background-color: #333344;
+      text-align: left;
+    }
+    .message.new-staff {
+      animation: highlight 1s;
+    }
+    @keyframes highlight {
+      0% { background-color: #4a3aff; }
+      100% { background-color: #333344; }
+    }
+    .message strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    textarea {
+      resize: none;
+      height: 80px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #333;
+      background-color: #1e1e1e;
+      color: #fff;
+    }
+    button {
+      background-color: #1753aa;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0f3a7a;
+    }
+  </style>
 </head>
 <body>
-
-<header>RekietaLabs Support - View Ticket</header>
-
-<div id="loginForm">
-  <div id="errorMessage"></div>
-  <label for="ticketId">Ticket ID</label>
-  <input type="text" id="ticketId" readonly />
-  <label for="username">Username</label>
-  <input type="text" id="username" placeholder="Your ticket username" required />
-  <label for="password">Password</label>
-  <input type="password" id="password" placeholder="Your ticket password" required />
-  <button id="loginBtn">Login</button>
-</div>
-
-<section id="ticketSection">
-  <div class="ticket-info">
-    <h2 id="ticketSubject"></h2>
-    <p><strong>Status:</strong> <span id="ticketStatus"></span></p>
-    <p><strong>Priority:</strong> <span id="ticketPriority"></span></p>
-    <p><strong>Created at:</strong> <span id="ticketCreatedAt"></span></p>
-    <p><strong>Assigned to:</strong> <span id="ticketAssignedTo"></span></p>
-    <p><strong>Support Staff:</strong> <span id="ticketSupportStaff"></span></p>
+  <div class="container">
+    <h1>Ticket Viewer</h1>
+    <div class="ticket-info">
+      <h2 id="ticket-subject"></h2>
+      <p><strong>Assigned to:</strong> <span id="ticket-assigned"></span></p>
+      <p><strong>Description:</strong> <span id="ticket-description"></span></p>
+    </div>
+    <div class="messages" id="messages"></div>
+    <form id="reply-form">
+      <textarea id="reply-text" placeholder="Type your reply..."></textarea>
+      <button type="submit">Send Reply</button>
+    </form>
   </div>
 
-  <div class="ticket-messages" id="messages"></div>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const ticketId = urlParams.get('ticketid');
+    const staffName = urlParams.get('supportstaff') || 'Staff';
 
-  <form id="replyForm" style="display:none;">
-    <textarea id="replyMessage" placeholder="Write your reply..." required></textarea>
-    <button type="submit">Send Reply</button>
-  </form>
-</section>
-
-<script>
-  const apiBase = 'https://api.rekietalabs.com/tickets';
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const ticketIdFromUrl = urlParams.get('ticketid');
-  const supportStaffFromUrl = urlParams.get('supportstaff');
-
-  const loginForm = document.getElementById('loginForm');
-  const errorMessage = document.getElementById('errorMessage');
-  const ticketSection = document.getElementById('ticketSection');
-  const replyForm = document.getElementById('replyForm');
-  const messagesDiv = document.getElementById('messages');
-
-  let currentTicket = null;
-  let credentials = {};
-
-  // Pre-fill ticket ID and lock it
-  if (ticketIdFromUrl) {
-    document.getElementById('ticketId').value = ticketIdFromUrl;
-  } else {
-    errorMessage.textContent = "Invalid ticket link: missing ticket ID.";
-    document.getElementById('loginBtn').disabled = true;
-  }
-
-  document.getElementById('loginBtn').addEventListener('click', async () => {
-    errorMessage.textContent = '';
-    const ticketId = document.getElementById('ticketId').value.trim();
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-
-    if (!ticketId || !username || !password) {
-      errorMessage.textContent = 'Please fill in all login fields.';
-      return;
+    if (!ticketId) {
+      alert('No ticket ID provided!');
+      throw new Error('Missing ticketid in URL');
     }
 
-    try {
-      const response = await fetch(`${apiBase}/${encodeURIComponent(ticketId)}`, {
-        headers: {
-          'username': username,
-          'password': password,
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        errorMessage.textContent = data.error || 'Failed to fetch ticket.';
-        return;
+    const subjectEl = document.getElementById('ticket-subject');
+    const assignedEl = document.getElementById('ticket-assigned');
+    const descriptionEl = document.getElementById('ticket-description');
+    const messagesEl = document.getElementById('messages');
+    const replyForm = document.getElementById('reply-form');
+    const replyText = document.getElementById('reply-text');
+
+    let ticketData = null;
+    let lastMessageCount = 0;
+
+    async function fetchTicket() {
+      try {
+        const ticketRes = await fetch(`/tickets/ticket/id?ticketid=${ticketId}`);
+        const ticketJson = await ticketRes.json();
+
+        if (ticketJson.error) {
+          messagesEl.innerHTML = `<p style="color:red;">${ticketJson.error}</p>`;
+          return;
+        }
+
+        ticketData = ticketJson.ticket;
+
+        subjectEl.textContent = ticketData.subject;
+        assignedEl.textContent = ticketData.assigned_to || 'Unassigned';
+        descriptionEl.textContent = ticketData.description;
+
+        fetchMessages();
+      } catch (err) {
+        console.error(err);
+        messagesEl.innerHTML = '<p style="color:red;">Failed to load ticket.</p>';
       }
-
-      currentTicket = data.ticket;
-      credentials = { username, password };
-
-      renderTicket();
-      loginForm.style.display = 'none';
-      ticketSection.style.display = 'block';
-      replyForm.style.display = 'flex';
-    } catch (err) {
-      errorMessage.textContent = 'Network error: unable to fetch ticket.';
     }
-  });
 
-  function renderTicket() {
-    document.getElementById('ticketSubject').textContent = currentTicket.subject;
-    document.getElementById('ticketStatus').textContent = currentTicket.status;
-    document.getElementById('ticketPriority').textContent = currentTicket.priority;
-    document.getElementById('ticketCreatedAt').textContent = new Date(currentTicket.created_at).toLocaleString();
-    document.getElementById('ticketAssignedTo').textContent = currentTicket.assigned_to || 'Unassigned';
-    document.getElementById('ticketSupportStaff').textContent = supportStaffFromUrl || 'Unassigned';
+    async function fetchMessages() {
+      if (!ticketData) return;
+      try {
+        const res = await fetch(`/tickets/ticket/reply?ticketid=${ticketId}`);
+        const data = await res.json();
 
-    messagesDiv.innerHTML = '';
-    currentTicket.messages.forEach((msg) => {
-      const div = document.createElement('div');
-      div.className = `message ${msg.from}`;
-      div.innerHTML = `<strong>${msg.from.charAt(0).toUpperCase() + msg.from.slice(1)}</strong>: ${escapeHtml(msg.message)}<br><small>${new Date(msg.timestamp).toLocaleString()}</small>`;
-      messagesDiv.appendChild(div);
+        if (!data.messages) return;
+
+        // Check for new staff messages
+        const newMessages = data.messages.slice(lastMessageCount);
+        lastMessageCount = data.messages.length;
+
+        messagesEl.innerHTML = '';
+        data.messages.forEach((msg, idx) => {
+          const div = document.createElement('div');
+          div.classList.add('message');
+
+          if (msg.from === 'user') {
+            div.classList.add('user');
+            div.innerHTML = `<strong>You</strong>${msg.message}`;
+          } else {
+            div.classList.add('staff');
+            if (idx >= data.messages.length - newMessages.length) {
+              div.classList.add('new-staff');
+            }
+            div.innerHTML = `<strong>${staffName}</strong>${msg.message}`;
+          }
+
+          messagesEl.appendChild(div);
+        });
+
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    replyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!replyText.value.trim()) return;
+
+      try {
+        const res = await fetch(`/tickets/${ticketId}/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: ticketData.credentials.username,
+            password: ticketData.credentials.password,
+            from: 'user',
+            message: replyText.value.trim()
+          })
+        });
+
+        const json = await res.json();
+        if (json.error) {
+          alert(json.error);
+          return;
+        }
+
+        replyText.value = '';
+        fetchMessages();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to send reply.');
+      }
     });
 
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
+    fetchTicket();
 
-  replyForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const messageText = document.getElementById('replyMessage').value.trim();
-    if (!messageText) return;
-
-    try {
-      const res = await fetch(`${apiBase}/${encodeURIComponent(currentTicket.id)}/reply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: credentials.username,
-          password: credentials.password,
-          from: 'user',
-          message: messageText,
-        }),
-      });
-      const result = await res.json();
-      if (!res.ok) {
-        alert(result.error || 'Failed to send reply.');
-        return;
-      }
-
-      currentTicket.messages.push({
-        from: 'user',
-        message: messageText,
-        timestamp: new Date().toISOString(),
-      });
-
-      renderTicket();
-      replyForm.reset();
-    } catch {
-      alert('Network error: unable to send reply.');
-    }
-  });
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-</script>
-
+    // Auto-refresh messages every 5 seconds
+    setInterval(fetchMessages, 5000);
+  </script>
 </body>
 </html>
