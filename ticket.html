@@ -1,206 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Support Ticket</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #1a1a1a;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    }
-    h1 {
-      color: #1753aa;
-      margin-bottom: 10px;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input[type="text"], input[type="password"], textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      background: #222;
-      border: 1px solid #333;
-      border-radius: 5px;
-      color: #eee;
-    }
-    button {
-      background: #1753aa;
-      color: #fff;
-      border: none;
-      padding: 10px 15px;
-      margin-top: 15px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    .ticket-info {
-      margin-top: 20px;
-      padding: 10px;
-      background: #222;
-      border-radius: 5px;
-    }
-    .message {
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    .from-user {
-      background: #1753aa33;
-    }
-    .from-staff {
-      background: #33aa17;
-    }
-    .messages {
-      max-height: 400px;
-      overflow-y: auto;
-      margin-top: 15px;
-      border: 1px solid #333;
-      padding: 10px;
-      border-radius: 5px;
-      background: #111;
-    }
-    .reply-section {
-      margin-top: 20px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Support Ticket Debug</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#111; color:#eee; margin:0; padding:0;}
+  .container { max-width:800px; margin:50px auto; padding:20px; background:#1a1a1a; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.5);}
+  h1 { color:#1753aa; margin-bottom:10px;}
+  label { display:block; margin-top:10px; font-weight:bold;}
+  input, textarea { width:100%; padding:8px; margin-top:5px; background:#222; border:1px solid #333; border-radius:5px; color:#eee;}
+  button { background:#1753aa; color:#fff; border:none; padding:10px 15px; margin-top:15px; cursor:pointer; border-radius:5px;}
+  .ticket-info { margin-top:20px; padding:10px; background:#222; border-radius:5px;}
+  .message { margin:10px 0; padding:10px; border-radius:5px;}
+  .from-user { background:#1753aa33; }
+  .from-staff { background:#33aa17; }
+  .messages { max-height:400px; overflow-y:auto; margin-top:15px; border:1px solid #333; padding:10px; border-radius:5px; background:#111; }
+  .reply-section { margin-top:20px;}
+  .debug-log { margin-top:20px; padding:10px; background:#333; border-radius:5px; max-height:200px; overflow-y:auto; font-size:12px; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Support Ticket</h1>
+<div class="container">
+  <h1>Support Ticket Debug</h1>
 
-    <div class="login-section">
-      <label for="username">Username:</label>
-      <input type="text" id="username" placeholder="Enter your username" />
+  <div class="login-section">
+    <label for="username">Username:</label>
+    <input type="text" id="username" placeholder="Enter your username" />
 
-      <label for="password">Password:</label>
-      <input type="password" id="password" placeholder="Enter your password" />
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter your password" />
 
-      <button id="load-ticket">Load Ticket</button>
-    </div>
+    <button id="load-ticket">Load Ticket</button>
+  </div>
 
-    <div class="ticket-info" style="display:none;">
-      <p><strong>Ticket ID:</strong> <span id="ticket-id"></span></p>
-      <p><strong>Subject:</strong> <span id="ticket-subject"></span></p>
-      <p><strong>Assigned To:</strong> <span id="ticket-assigned"></span></p>
-      <div class="messages" id="messages"></div>
+  <div class="ticket-info" style="display:none;">
+    <p><strong>Ticket ID:</strong> <span id="ticket-id"></span></p>
+    <p><strong>Subject:</strong> <span id="ticket-subject"></span></p>
+    <p><strong>Assigned To:</strong> <span id="ticket-assigned"></span></p>
+    <div class="messages" id="messages"></div>
 
-      <div class="reply-section">
-        <label for="reply">Your Reply:</label>
-        <textarea id="reply" rows="4" placeholder="Type your reply here..."></textarea>
-        <button id="send-reply">Send Reply</button>
-      </div>
+    <div class="reply-section">
+      <label for="reply">Your Reply:</label>
+      <textarea id="reply" rows="4" placeholder="Type your reply here..."></textarea>
+      <button id="send-reply">Send Reply</button>
     </div>
   </div>
 
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const ticketIdParam = urlParams.get('ticketid');
-    const staffNameParam = urlParams.get('staffname') || 'Staff';
+  <div class="debug-log" id="debug-log"></div>
+</div>
 
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const loadButton = document.getElementById('load-ticket');
+<script>
+  const debug = (msg, obj=null) => {
+    const logDiv = document.getElementById('debug-log');
+    const entry = document.createElement('div');
+    entry.textContent = `[${new Date().toISOString()}] ${msg}`;
+    if(obj) entry.textContent += ' | ' + JSON.stringify(obj);
+    logDiv.appendChild(entry);
+    console.log(msg, obj);
+  }
 
-    const ticketInfoDiv = document.querySelector('.ticket-info');
-    const ticketIdSpan = document.getElementById('ticket-id');
-    const ticketSubjectSpan = document.getElementById('ticket-subject');
-    const ticketAssignedSpan = document.getElementById('ticket-assigned');
-    const messagesDiv = document.getElementById('messages');
+  const urlParams = new URLSearchParams(window.location.search);
+  const ticketIdParam = urlParams.get('ticketid');
+  const staffNameParam = urlParams.get('staffname') || 'Staff';
 
-    const replyTextarea = document.getElementById('reply');
-    const sendReplyButton = document.getElementById('send-reply');
+  debug('Parsed URL parameters', {ticketid: ticketIdParam, staffname: staffNameParam});
 
-    let ticketData = null;
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const loadButton = document.getElementById('load-ticket');
 
-    async function loadTicket() {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
-      if (!username || !password) {
-        alert('Please enter username and password.');
+  const ticketInfoDiv = document.querySelector('.ticket-info');
+  const ticketIdSpan = document.getElementById('ticket-id');
+  const ticketSubjectSpan = document.getElementById('ticket-subject');
+  const ticketAssignedSpan = document.getElementById('ticket-assigned');
+  const messagesDiv = document.getElementById('messages');
+
+  const replyTextarea = document.getElementById('reply');
+  const sendReplyButton = document.getElementById('send-reply');
+
+  let ticketData = null;
+
+  async function loadTicket() {
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+    debug('User clicked Load Ticket', {username, password});
+
+    if (!username || !password) {
+      alert('Please enter username and password.');
+      debug('Username or password missing');
+      return;
+    }
+
+    if(!ticketIdParam){
+      alert('No ticketid in URL!');
+      debug('Missing ticketid in URL');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/tickets/ticket/id?ticketid=${ticketIdParam}`, {
+        headers: { username, password }
+      });
+      debug('Fetched ticket from server', {status: res.status, statusText: res.statusText});
+
+      const data = await res.json().catch(err=>{
+        debug('Failed parsing JSON response', err);
+        throw err;
+      });
+
+      if(!res.ok){
+        alert('Error loading ticket. See debug log.');
+        debug('Response not OK', data);
         return;
       }
 
-      try {
-        const res = await fetch(`/tickets/ticket/id?ticketid=${ticketIdParam}`, {
-          headers: { username, password }
-        });
-        if (!res.ok) throw new Error('Failed to load ticket.');
-        const data = await res.json();
-        ticketData = data.ticket;
+      debug('Ticket data received', data);
 
-        ticketInfoDiv.style.display = 'block';
-        usernameInput.disabled = true;
-        passwordInput.disabled = true;
-        loadButton.disabled = true;
+      ticketData = data.ticket;
 
-        ticketIdSpan.textContent = ticketData.id;
-        ticketSubjectSpan.textContent = ticketData.subject;
-        ticketAssignedSpan.textContent = ticketData.assigned_to || 'Unassigned';
-
-        renderMessages();
-      } catch (err) {
-        console.error(err);
-        alert('Error loading ticket.');
+      if(!ticketData){
+        alert('Ticket data missing!');
+        debug('ticketData is null or undefined', data);
+        return;
       }
-    }
 
-    function renderMessages() {
-      messagesDiv.innerHTML = '';
-      ticketData.messages.forEach(msg => {
-        const div = document.createElement('div');
-        div.classList.add('message');
-        if (msg.from === 'You') div.classList.add('from-user');
-        else div.classList.add('from-staff');
-        div.innerHTML = `<strong>${msg.from}:</strong> ${msg.message} <br><small>${new Date(msg.timestamp).toLocaleString()}</small>`;
-        messagesDiv.appendChild(div);
+      ticketInfoDiv.style.display = 'block';
+      usernameInput.disabled = true;
+      passwordInput.disabled = true;
+      loadButton.disabled = true;
+
+      ticketIdSpan.textContent = ticketData.id || 'Unknown';
+      ticketSubjectSpan.textContent = ticketData.subject || 'Unknown';
+      ticketAssignedSpan.textContent = ticketData.assigned_to || 'Unassigned';
+
+      renderMessages();
+    } catch (err) {
+      console.error(err);
+      alert('Error loading ticket. See console/debug log.');
+      debug('Exception in loadTicket', err);
+    }
+  }
+
+  function renderMessages() {
+    messagesDiv.innerHTML = '';
+    if(!ticketData || !ticketData.messages){
+      debug('No messages to render', ticketData);
+      return;
+    }
+    ticketData.messages.forEach(msg => {
+      const div = document.createElement('div');
+      div.classList.add('message');
+      if(msg.from === 'user' || msg.from === 'You') {
+        div.classList.add('from-user');
+        div.innerHTML = `<strong>You:</strong> ${msg.message} <br><small>${new Date(msg.timestamp).toLocaleString()}</small>`;
+      } else {
+        div.classList.add('from-staff');
+        div.innerHTML = `<strong>${staffNameParam}:</strong> ${msg.message} <br><small>${new Date(msg.timestamp).toLocaleString()}</small>`;
+      }
+      messagesDiv.appendChild(div);
+    });
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    debug('Messages rendered', ticketData.messages);
+  }
+
+  async function sendReply() {
+    const text = replyTextarea.value.trim();
+    if(!text) return alert('Reply cannot be empty.');
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    debug('Sending reply', {text, username});
+
+    try {
+      const res = await fetch(`/tickets/${ticketData.id}/reply`, {
+        method:'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username, password, from:'user', message:text})
       });
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
 
-    async function sendReply() {
-      const text = replyTextarea.value.trim();
-      if (!text) return alert('Reply cannot be empty.');
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
+      debug('Reply response', {status: res.status, statusText: res.statusText});
 
-      try {
-        const res = await fetch(`/tickets/${ticketData.id}/reply`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username,
-            password,
-            from: 'user',
-            message: text
-          })
-        });
-        if (!res.ok) throw new Error('Failed to send reply.');
-        replyTextarea.value = '';
-        // Add to local messages
-        ticketData.messages.push({ from: 'You', message: text, timestamp: new Date().toISOString() });
-        renderMessages();
-      } catch (err) {
-        console.error(err);
-        alert('Error sending reply.');
+      if(!res.ok){
+        const errText = await res.text();
+        debug('Failed to send reply', errText);
+        throw new Error('Failed to send reply');
       }
-    }
 
-    loadButton.addEventListener('click', loadTicket);
-    sendReplyButton.addEventListener('click', sendReply);
-  </script>
+      replyTextarea.value='';
+      ticketData.messages.push({from:'You', message:text, timestamp:new Date().toISOString()});
+      renderMessages();
+      debug('Reply added to messages', ticketData.messages);
+    } catch(err){
+      console.error(err);
+      alert('Error sending reply. See console/debug log.');
+      debug('Exception in sendReply', err);
+    }
+  }
+
+  loadButton.addEventListener('click', loadTicket);
+  sendReplyButton.addEventListener('click', sendReply);
+</script>
 </body>
 </html>
