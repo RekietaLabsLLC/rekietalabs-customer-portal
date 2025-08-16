@@ -1,95 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ticket Viewer</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 20px;
-      background-color: #1e1e1e;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    h1, h2 {
-      color: #1753aa;
-    }
-    .ticket-info {
-      margin-bottom: 20px;
-    }
-    .messages {
-      max-height: 400px;
-      overflow-y: auto;
-      margin-bottom: 20px;
-      border-top: 1px solid #333;
-      border-bottom: 1px solid #333;
-      padding: 10px 0;
-    }
-    .message {
-      margin-bottom: 10px;
-      padding: 8px;
-      border-radius: 5px;
-      transition: background-color 0.5s;
-    }
-    .message.user {
-      background-color: #2a2a2a;
-      text-align: left;
-    }
-    .message.staff {
-      background-color: #333344;
-      text-align: left;
-    }
-    .message.new-staff {
-      animation: highlight 1s;
-    }
-    @keyframes highlight {
-      0% { background-color: #4a3aff; }
-      100% { background-color: #333344; }
-    }
-    .message strong {
-      display: block;
-      margin-bottom: 4px;
-      color: #fff;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-    textarea {
-      resize: none;
-      height: 80px;
-      margin-bottom: 10px;
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #333;
-      background-color: #1e1e1e;
-      color: #fff;
-    }
-    button {
-      background-color: #1753aa;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0f3a7a;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Viewer</title>
+<style>
+  :root {
+    --brand-color: #1753aa;
+    --bg-dark: #121212;
+    --bg-panel: #1e1e1e;
+    --text-light: #ffffff;
+    --text-muted: #aaaaaa;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: var(--bg-panel);
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  }
+  h1, h2 {
+    color: var(--brand-color);
+    margin-bottom: 10px;
+  }
+  .login-panel, .ticket-panel {
+    display: flex;
+    flex-direction: column;
+  }
+  input {
+    padding: 10px;
+    margin: 5px 0 15px 0;
+    border-radius: 5px;
+    border: 1px solid #333;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+  }
+  button {
+    padding: 10px;
+    background-color: var(--brand-color);
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0f3a7a;
+  }
+  .ticket-info {
+    margin-bottom: 20px;
+  }
+  .messages {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding: 10px 0;
+  }
+  .message {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    transition: background-color 0.5s;
+  }
+  .message.user { background-color: #2a2a2a; text-align: left; }
+  .message.staff { background-color: #333344; text-align: left; }
+  .message.new-staff { animation: highlight 1s; }
+  @keyframes highlight { 0% { background-color: #4a3aff; } 100% { background-color: #333344; } }
+  .message strong { display: block; margin-bottom: 4px; color: #fff; }
+  textarea {
+    resize: none;
+    height: 80px;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #333;
+    background-color: var(--bg-dark);
+    color: #fff;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Ticket Viewer</h1>
+<div class="container">
+  <h1>Ticket Viewer</h1>
+
+  <!-- Login Panel -->
+  <div class="login-panel" id="login-panel">
+    <p>Enter your ticket credentials from email:</p>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button id="login-btn">Login</button>
+    <p id="login-error" style="color:red; display:none;"></p>
+  </div>
+
+  <!-- Ticket Panel -->
+  <div class="ticket-panel" id="ticket-panel" style="display:none;">
     <div class="ticket-info">
       <h2 id="ticket-subject"></h2>
       <p><strong>Assigned to:</strong> <span id="ticket-assigned"></span></p>
@@ -101,121 +114,121 @@
       <button type="submit">Send Reply</button>
     </form>
   </div>
+</div>
 
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const ticketId = urlParams.get('ticketid');
-    const staffName = urlParams.get('supportstaff') || 'Staff';
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const ticketId = urlParams.get('ticketid');
+const staffName = urlParams.get('supportstaff') || 'Staff';
 
-    if (!ticketId) {
-      alert('No ticket ID provided!');
-      throw new Error('Missing ticketid in URL');
-    }
+if (!ticketId) {
+  alert('No ticket ID provided!');
+  throw new Error('Missing ticketid in URL');
+}
 
-    const subjectEl = document.getElementById('ticket-subject');
-    const assignedEl = document.getElementById('ticket-assigned');
-    const descriptionEl = document.getElementById('ticket-description');
-    const messagesEl = document.getElementById('messages');
-    const replyForm = document.getElementById('reply-form');
-    const replyText = document.getElementById('reply-text');
+const loginPanel = document.getElementById('login-panel');
+const ticketPanel = document.getElementById('ticket-panel');
+const loginBtn = document.getElementById('login-btn');
+const loginError = document.getElementById('login-error');
 
-    let ticketData = null;
-    let lastMessageCount = 0;
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
 
-    async function fetchTicket() {
-      try {
-        const ticketRes = await fetch(`/tickets/ticket/id?ticketid=${ticketId}`);
-        const ticketJson = await ticketRes.json();
+const subjectEl = document.getElementById('ticket-subject');
+const assignedEl = document.getElementById('ticket-assigned');
+const descriptionEl = document.getElementById('ticket-description');
+const messagesEl = document.getElementById('messages');
+const replyForm = document.getElementById('reply-form');
+const replyText = document.getElementById('reply-text');
 
-        if (ticketJson.error) {
-          messagesEl.innerHTML = `<p style="color:red;">${ticketJson.error}</p>`;
-          return;
-        }
+let ticketData = null;
+let lastMessageCount = 0;
 
-        ticketData = ticketJson.ticket;
+async function fetchTicket() {
+  try {
+    const res = await fetch(`/tickets/ticket/id?ticketid=${ticketId}`);
+    const json = await res.json();
+    if (json.error) { loginError.textContent = json.error; loginError.style.display = 'block'; return; }
+    ticketData = json.ticket;
+  } catch (err) {
+    loginError.textContent = 'Failed to load ticket.';
+    loginError.style.display = 'block';
+  }
+}
 
-        subjectEl.textContent = ticketData.subject;
-        assignedEl.textContent = ticketData.assigned_to || 'Unassigned';
-        descriptionEl.textContent = ticketData.description;
+async function fetchMessages() {
+  if (!ticketData) return;
+  try {
+    const res = await fetch(`/tickets/ticket/reply?ticketid=${ticketId}`);
+    const data = await res.json();
+    if (!data.messages) return;
 
-        fetchMessages();
-      } catch (err) {
-        console.error(err);
-        messagesEl.innerHTML = '<p style="color:red;">Failed to load ticket.</p>';
+    const newMessages = data.messages.slice(lastMessageCount);
+    lastMessageCount = data.messages.length;
+
+    messagesEl.innerHTML = '';
+    data.messages.forEach((msg, idx) => {
+      const div = document.createElement('div');
+      div.classList.add('message');
+      if (msg.from === 'user') {
+        div.classList.add('user');
+        div.innerHTML = `<strong>You</strong>${msg.message}`;
+      } else {
+        div.classList.add('staff');
+        if (idx >= data.messages.length - newMessages.length) div.classList.add('new-staff');
+        div.innerHTML = `<strong>${staffName}</strong>${msg.message}`;
       }
-    }
-
-    async function fetchMessages() {
-      if (!ticketData) return;
-      try {
-        const res = await fetch(`/tickets/ticket/reply?ticketid=${ticketId}`);
-        const data = await res.json();
-
-        if (!data.messages) return;
-
-        // Check for new staff messages
-        const newMessages = data.messages.slice(lastMessageCount);
-        lastMessageCount = data.messages.length;
-
-        messagesEl.innerHTML = '';
-        data.messages.forEach((msg, idx) => {
-          const div = document.createElement('div');
-          div.classList.add('message');
-
-          if (msg.from === 'user') {
-            div.classList.add('user');
-            div.innerHTML = `<strong>You</strong>${msg.message}`;
-          } else {
-            div.classList.add('staff');
-            if (idx >= data.messages.length - newMessages.length) {
-              div.classList.add('new-staff');
-            }
-            div.innerHTML = `<strong>${staffName}</strong>${msg.message}`;
-          }
-
-          messagesEl.appendChild(div);
-        });
-
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    replyForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!replyText.value.trim()) return;
-
-      try {
-        const res = await fetch(`/tickets/${ticketId}/reply`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: ticketData.credentials.username,
-            password: ticketData.credentials.password,
-            from: 'user',
-            message: replyText.value.trim()
-          })
-        });
-
-        const json = await res.json();
-        if (json.error) {
-          alert(json.error);
-          return;
-        }
-
-        replyText.value = '';
-        fetchMessages();
-      } catch (err) {
-        console.error(err);
-        alert('Failed to send reply.');
-      }
+      messagesEl.appendChild(div);
     });
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  } catch (err) { console.error(err); }
+}
 
-    fetchTicket();
+loginBtn.addEventListener('click', async () => {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+  if (!username || !password) return;
 
-    // Auto-refresh messages every 5 seconds
+  await fetchTicket();
+  if (!ticketData) return;
+
+  if (ticketData.credentials.username === username && ticketData.credentials.password === password) {
+    loginPanel.style.display = 'none';
+    ticketPanel.style.display = 'flex';
+    subjectEl.textContent = ticketData.subject;
+    assignedEl.textContent = ticketData.assigned_to || 'Unassigned';
+    descriptionEl.textContent = ticketData.description;
+    fetchMessages();
     setInterval(fetchMessages, 5000);
-  </script>
+  } else {
+    loginError.textContent = 'Invalid credentials.';
+    loginError.style.display = 'block';
+  }
+});
+
+replyForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!replyText.value.trim()) return;
+
+  try {
+    const res = await fetch(`/tickets/${ticketId}/reply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: ticketData.credentials.username,
+        password: ticketData.credentials.password,
+        from: 'user',
+        message: replyText.value.trim()
+      })
+    });
+    const json = await res.json();
+    if (json.error) { alert(json.error); return; }
+    replyText.value = '';
+    fetchMessages();
+  } catch (err) {
+    alert('Failed to send reply.');
+  }
+});
+</script>
 </body>
 </html>
